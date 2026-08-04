@@ -1,7 +1,6 @@
 import express from "express";
 import axios from "axios";
-import SmsLog from "../models/smsSchema";
-
+import SmsLog from "../models/smsSchema.js";
 const router = express.Router();
 const MODEL = "gemma3:1b";
 

@@ -1,22 +1,21 @@
 import express from "express";
-const userRoutes = require("./routes/userRoutes");
-const smsRoutes = require("./routes/smsRoutes");
+import userRoutes from "./routes/userRoutes.js";
+import mongoose from "mongoose";
+import smsRoutes from "./routes/smsRoutes.js";
 import cors from "cors";
 
-// Import Database instance
-const db = require("./config/db");
-
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
 // Connect to Database
-db.connect()
-  .then(() => console.log(" Database connected successfully"))
-  .catch((err) => console.error(" Database connection error:", err));
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("Database connected successfully"))
+  .catch((err) => console.error("Database connection error:", err));
 
 // Mount REST API Routes
 app.use("/api/users", userRoutes);
