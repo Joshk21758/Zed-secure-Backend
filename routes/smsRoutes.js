@@ -2,9 +2,9 @@ import express from "express";
 import axios from "axios";
 import SmsLog from "../models/smsSchema.js";
 const router = express.Router();
-const MODEL = "gemma3:1b";
+const MODEL = "@cf/meta/llama-3-8b-instruct";
 
-// POST /api/v1/sms/analyze - Intercept, Analyze with Gemma, and Save to Mongo
+// POST /api/v1/sms/analyze - Intercept
 router.post("/analyze", async (req, res) => {
   try {
     const { sender, message } = req.body;
@@ -23,17 +23,24 @@ Respond STRICTLY with a valid JSON object matching this schema:
   "reason": "Short one-sentence explanation"
 }`;
 
-    const ollamaResponse = await axios.post(`${process.env.OLLAMA_URL}`, {
-      model: MODEL,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: `Sender: ${sender}\nMessage: "${message}"` },
-      ],
-      options: { temperature: 0.1 },
-      stream: false,
-    });
+    const cloudflareResponse = await axios.post(
+      `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/run${MODEL}`,
+      {
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `Sender: ${sender}\nMessage: "${message}"` },
+        ],
+        temperature: 0.1,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
 
-    const rawResponse = ollamaResponse.data.message.content.trim();
+    const rawResponse = cloudflareResponse.data.result.response.trim();
 
     let analysis;
     try {

@@ -5,6 +5,7 @@ import smsRoutes from "./routes/smsRoutes.js";
 import cors from "cors";
 
 const app = express();
+const MONGO_URI = process.env.DB_URI;
 const PORT = process.env.PORT || 3000;
 
 // Middleware
@@ -13,7 +14,7 @@ app.use(express.json());
 
 // Connect to Database
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(MONGO_URI, { dbName: "zed_secure" })
   .then(() => console.log("Database connected successfully"))
   .catch((err) => console.error("Database connection error:", err));
 
