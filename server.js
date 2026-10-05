@@ -1,11 +1,10 @@
 import express from "express";
 import userRoutes from "./routes/userRoutes.js";
-import mongoose from "mongoose";
+import connectDB from "./config/db.js";
 import smsRoutes from "./routes/smsRoutes.js";
 import cors from "cors";
 
 const app = express();
-const MONGO_URI = process.env.DB_URI;
 const PORT = process.env.PORT || 3000;
 
 // Middleware
@@ -13,10 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 // Connect to Database
-mongoose
-  .connect(MONGO_URI, { dbName: "zed_secure" })
-  .then(() => console.log("Database connected successfully"))
-  .catch((err) => console.error("Database connection error:", err));
+connectDB();
 
 // Mount REST API Routes
 app.use("/api/users", userRoutes);
