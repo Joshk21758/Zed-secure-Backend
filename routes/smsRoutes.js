@@ -4,6 +4,19 @@ import SmsLog from "../models/smsSchema.js";
 const router = express.Router();
 const MODEL = "@cf/meta/llama-3-8b-instruct";
 
+// GET /api/sms/logs - Fetch the most recent analyzed messages
+router.get("/logs", async (req, res) => {
+  try {
+    const logs = await SmsLog.find().sort({ createdAt: -1 }).limit(50);
+    return res.status(200).json({ success: true, logs });
+  } catch (error) {
+    console.error("Recent activity fetch error:", error.message);
+    return res
+      .status(500)
+      .json({ success: false, error: "Failed to fetch recent activity." });
+  }
+});
+
 // POST /api/v1/sms/analyze - Intercept
 router.post("/analyze", async (req, res) => {
   try {
