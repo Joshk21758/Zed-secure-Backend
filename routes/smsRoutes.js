@@ -1,8 +1,35 @@
 import express from "express";
 import axios from "axios";
+import jwt from "jsonwebtoken";
 import SmsLog from "../models/smsSchema.js";
 const router = express.Router();
 const MODEL = "@cf/meta/llama-3-8b-instruct";
+
+const authMiddleware = (req, res, next) => {
+  const authHeader = req.headers.authorization || "";
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+
+  if (!token) {
+    return res.status(401).json({ success: false, message: "Authentication token missing" });
+  }
+
+  try {
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      console.error("JWT_SECRET is missing");
+      return res.status(500).json({ success: false, message: "Authentication configuration error" });
+    }
+
+    const decoded = jwt.verify(token, jwtSecret);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    console.error("JWT verification failed:", error.message);
+    return res.status(401).json({ success: false, message: "Invalid or expired token" });
+  }
+};
+
+router.use(authMiddleware);
 
 // GET /api/sms/logs - Fetch the most recent analyzed messages
 router.get("/logs", async (req, res) => {
