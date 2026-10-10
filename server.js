@@ -2,7 +2,6 @@ import express from "express";
 import userRoutes from "./routes/userRoutes.js";
 import connectDB from "./config/db.js";
 import dotenv from "dotenv";
-import smsRoutes from "./routes/smsRoutes.js";
 import cors from "cors";
 dotenv.config();
 
@@ -18,7 +17,6 @@ connectDB();
 
 // Mount REST API Routes
 app.use("/api/users", userRoutes);
-app.use("/api/sms", smsRoutes);
 
 // Health Check Endpoint
 app.get("/", (req, res) => {
